@@ -9,7 +9,6 @@ test:
   parallel:
     matrix:
       - PYTHON_VERSION: ["3.10"]
-        MONGO_VERSION: ["7"]
   image: python:${PYTHON_VERSION}
   # rules:
   #  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^Draft:/'
