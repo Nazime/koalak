@@ -1,0 +1,7 @@
+nav:
+    - introduction.md
+    - install.md
+    - quickstart.md
+    - features
+    - ...
+    - next_steps.md

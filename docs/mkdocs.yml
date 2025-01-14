@@ -1,0 +1,86 @@
+site_name: Koalak
+
+
+plugins:
+  - search
+  - progress
+  - tooltips
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+  - awesome-pages
+  - glightbox
+  - git-revision-date-localized:
+      enabled: true
+      enable_creation_date: true
+      type: datetime
+      timezone: Europe/Paris
+
+theme:
+  name: material
+  features:
+    - navigation.top
+    - navigation.sections
+    - navigation.tracking
+    - navigation.indexes
+    - header.autohide
+    - content.code.copy
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - footnotes
+  - tables
+
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.emoji
+
+  - abbr
+  - attr_list
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_anchors: codeblock
+      guess_lang: true
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.smartsymbols
+  - pymdownx.critic
+  - pymdownx.mark
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.keys
+  # Add tabs
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+watch:
+  - includes
+
+# CSS for mkdocs-tooltips
+extra_css:
+  - assets/css/hint.min.css
+
+copyright: Copyright &copy; Nazime

@@ -1,0 +1,26 @@
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - pip install tox
+    - tox
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.10"]
+        MONGO_VERSION: ["7"]
+  image: python:${PYTHON_VERSION}
+  # rules:
+  #  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^Draft:/'
+
+pages:
+  script:
+    - pip install tox
+    - tox -e mkdocs
+  artifacts:
+    paths:
+      - public
+  only:
+    - dev
+  image: python:3.10

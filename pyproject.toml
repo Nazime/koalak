@@ -1,0 +1,43 @@
+[project]
+name= "koalak"
+version = "0.4.0"  # change it in const also
+description = "Library designed to simplify the development of applications with a plugin-based architecture."
+readme="README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+
+
+authors = [
+  {name = "Nazime LAKEHAL",  email = "nazime.lkh@gmail.com" }
+]
+
+
+dependencies = [
+    "attrs",
+    "argcomplete",
+    "toml",
+    "typeguard>=4",
+    "rich",
+    "devtools",
+    "pyyaml",
+    # for utils functions
+    "openpyxl",
+    "deepmerge",
+]
+
+[project.optional-dependencies] # Optional
+docs = ["mkdocs", "mkdocs-material", "mkdocs-plugin-progress", "mkdocs-tooltips", "mkdocs-minify-plugin", "mkdocs-git-revision-date-localized-plugin", 'mkdocs-glightbox', "mkdocs-awesome-pages-plugin"]
+tests = [
+        "coverage",
+        "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
+        "coloring", # to use coloring.rmgraphics
+    ]
+dev = ["koalak", "koalak[tests]"]
+
+
+[build-system]
+requires = [
+    "setuptools >= 40.6.2",
+    "wheel >= 0.30.0",
+]
+build-backend = 'setuptools.build_meta'

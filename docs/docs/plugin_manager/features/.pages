@@ -1,0 +1,6 @@
+nav:
+    - metadata.md
+    - plugins_constraints.md
+    - config_attributes.md
+    - abstract_plugin.md
+    - ...
