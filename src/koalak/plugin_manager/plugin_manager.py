@@ -1,6 +1,7 @@
 import glob
 import inspect
 import os
+from importlib.metadata import entry_points
 from pathlib import Path
 from typing import Dict, Generic, Iterable, List, Type, TypeVar, Union
 
@@ -63,6 +64,7 @@ class PluginManager(Generic[T]):
         base_plugin: Type[T],
         auto_register: bool = None,
         auto_check: bool = None,
+        entry_point: str = None,
         # Paths
         builtin_data_path: Union[str, Path] = None,
         builtin_plugins_path: Union[str, Path] = None,
@@ -108,6 +110,7 @@ class PluginManager(Generic[T]):
                 home_path / "exceptions"
 
         self.name: str = name
+        self.entry_point = entry_point
         self.builtin_data_path = builtin_data_path
         self.builtin_plugins_path = builtin_plugins_path
         self.home_path: Path = home_path
@@ -216,6 +219,12 @@ class PluginManager(Generic[T]):
         self._init_home()
         self._load_plugins()
         self._init_config()
+
+        # TODO: document & test entry points
+        # Load plugins from other libraries entry points
+        if self.entry_point:
+            for entry_point in entry_points(group=self.entry_point, name=self.name):
+                entry_point.load()
 
     def iter(self, *, name=None):
         if isinstance(name, str):
