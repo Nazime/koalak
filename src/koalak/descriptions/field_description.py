@@ -367,7 +367,12 @@ class FieldDescription:
     def print_str(self):
         print_str = f"{self.name}"
         if self.type is not None:
-            print_str += f" [yellow]\\[{self.type.__name__}][/yellow]"
+            try:
+                name_type = self.type.__name__
+            except AttributeError:
+                name_type = self.atomic_type.name
+
+            print_str += f" [yellow]\\[{name_type}][/yellow]"
         return print_str
 
     def print(self):
