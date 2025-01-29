@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Generic, Iterable, List, Type, TypeVar, Union
 
 from koalak.config import Config
+from koalak.containers import Container, search
 
 from ..descriptions.field_description import FieldDescription
 from .base_plugin import Plugin
@@ -226,7 +227,16 @@ class PluginManager(Generic[T]):
             for entry_point in entry_points(group=self.entry_point, name=self.name):
                 entry_point.load()
 
-    def iter(self, *, name=None):
+    def iter(
+        self,
+        *,
+        name: str | list[str] = None,
+        category: str | list[str] = None,
+        sub_category: str | list[str] = None,
+        tags: str | list[str] = None,
+        authors: str | list[str] = None,
+    ):
+
         if isinstance(name, str):
             name = [name]
         if name is not None:
@@ -234,10 +244,17 @@ class PluginManager(Generic[T]):
                 if e not in self:
                     raise ValueError(f"Plugin '{e}' not registred")
 
-        for e in self:
-            if name is not None and e.name not in name:
-                continue
-            yield e
+        # Filter with metadata
+        iterable = search(
+            self,
+            key=lambda x, e: getattr(x.metadata, e),
+            category=category,
+            sub_category=sub_category,
+            tags=tags,
+            authors=authors,
+        )
+        iterable = Container(iterable, name=name)
+        yield from iterable
 
     def get_home_data_path(self, *paths):
         return self.home_data_path.joinpath(*paths)
