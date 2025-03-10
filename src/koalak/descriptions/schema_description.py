@@ -265,22 +265,31 @@ class SchemaDescription:
     def from_folder(
         cls, filepath: Union[str, Path], allowed_tags=None, allowed_categories=None
     ) -> "SchemaDescription":
+
+        schema = SchemaDescription(
+            allowed_tags=allowed_tags, allowed_categories=allowed_categories
+        )
+
+        schema.add_entities_from_folder(filepath)
+        return schema
+
+    def add_entities_from_folder(self, filepath, update=None):
+        if update is None:
+            update = True
         folder_path = Path(filepath)
 
         if not folder_path.is_dir():
             raise ValueError(f"Provided path '{folder_path}' is not a directory.")
 
-        schema = SchemaDescription(
-            allowed_tags=allowed_tags, allowed_categories=allowed_categories
-        )
         for file_path in folder_path.rglob("*"):
             if file_path.is_dir():
                 continue
             entity = EntityDescription.from_file(file_path, ignore_type_error=True)
-            schema.add_existing_entity(entity)
-        schema.update_referenced_entities_from_str()
-        schema.update()
-        return schema
+            self.add_existing_entity(entity)
+
+        if update:
+            self.update_referenced_entities_from_str()
+            self.update()
 
     @classmethod
     def from_dict(
