@@ -225,7 +225,14 @@ class PluginManager(Generic[T]):
         # Load plugins from other libraries entry points
         if self.entry_point:
             for entry_point in entry_points(group=self.entry_point, name=self.name):
-                entry_point.load()
+                try:
+                    entry_point.load()
+                except ModuleNotFoundError as e:
+                    package_distribution = entry_point.dist.name
+                    raise ModuleNotFoundError(
+                        f"Failed to load entry point '{entry_point.name}' from distribution '{package_distribution}'. "
+                        f"Ensure the package is installed and accessible. Missing module: '{entry_point.value}'"
+                    ) from e
 
     def iter(
         self,
