@@ -263,14 +263,18 @@ class SchemaDescription:
 
     @classmethod
     def from_folder(
-        cls, filepath: Union[str, Path], allowed_tags=None, allowed_categories=None
+        cls,
+        filepath: Union[str, Path],
+        allowed_tags=None,
+        allowed_categories=None,
+        update: bool = None,
     ) -> "SchemaDescription":
 
         schema = SchemaDescription(
             allowed_tags=allowed_tags, allowed_categories=allowed_categories
         )
 
-        schema.add_entities_from_folder(filepath)
+        schema.add_entities_from_folder(filepath, update=update)
         return schema
 
     def add_entities_from_folder(self, filepath, update=None):
@@ -367,7 +371,6 @@ class SchemaDescription:
         map_str_name_to_entity = {}
         for entity in self:
             map_str_name_to_entity[entity.name] = entity
-
         for entity in self:
             for field in entity:
                 if isinstance(field.type, str):
