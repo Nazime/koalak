@@ -1,10 +1,8 @@
 # TODO: try implementing an argparse formatter instead?
 import typing
 from typing import Any, Dict
-
 if typing.TYPE_CHECKING:
     from .subcommand_parser import SubcommandParser
-
 from koalak.descriptions import EntityDescription, FieldDescription
 
 # import rich
@@ -80,11 +78,18 @@ class SubcommandPrinter:
         args = []
         # Get type column
         if add_type:
-            type_str = types_to_text.get(argument.type, "TEXT")
-            if argument.many:
-                type_str = f"List[{type_str}]"
-            styled_type = Text(type_str, style=STYLE_OPTIONS_TYPE)
-            args.append(styled_type)
+            if argument.choices:
+                str_choices = "[" + ", ".join(argument.choices) + "]"
+                str_choices = Text(str_choices, style=STYLE_OPTIONS_TYPE)
+                args.append(str_choices)
+            else:
+                type_str = types_to_text.get(argument.type, "TEXT")
+                if argument.many:
+                    type_str = f"List[{type_str}]"
+                styled_type = Text(type_str, style=STYLE_OPTIONS_TYPE)
+                args.append(styled_type)
+
+
 
         # Get help column
         if argument.description is not None:
