@@ -420,9 +420,14 @@ class SubcommandParser:
         hide: bool = None,
         description: str = None,
         name=None,
+        replace_name_underscrol=None,
     ):
+        if replace_name_underscrol is None:
+            replace_name_underscrol = True
         if name is None:
             name = function.__name__
+            if replace_name_underscrol:
+                name = name.replace("_", "-")
         if description is None:
             description = function.__doc__
         self._init_argparse_subparsers()
