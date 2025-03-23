@@ -25,10 +25,14 @@ class SchemaDescription:
     """Describe how different EntityDescription are related"""
 
     def __init__(
-        self, allowed_tags: list[str] = None, allowed_categories: list[str] = None
+        self, allowed_tags: list[str] = None, allowed_categories: list[str] = None,
+            metadata: dict = None,
     ):
+        if metadata is None:
+            metadata = {}
         self.allowed_tags = allowed_tags
         self.allowed_categories = allowed_categories
+        self.metadata = {}
 
         self._initialized = False
         self._entities: Dict[str, EntityDescription] = {}
@@ -268,18 +272,23 @@ class SchemaDescription:
         allowed_tags=None,
         allowed_categories=None,
         update: bool = None,
+        metadata: dict = None,
+
     ) -> "SchemaDescription":
 
         schema = SchemaDescription(
             allowed_tags=allowed_tags, allowed_categories=allowed_categories
         )
 
-        schema.add_entities_from_folder(filepath, update=update)
+        schema.add_entities_from_folder(filepath, update=update, metadata=metadata)
         return schema
 
-    def add_entities_from_folder(self, filepath, update=None):
+    def add_entities_from_folder(self, filepath, update=None, metadata=None):
         if update is None:
             update = True
+        if metadata is None:
+            metadata = {}
+
         folder_path = Path(filepath)
 
         if not folder_path.is_dir():
@@ -289,6 +298,7 @@ class SchemaDescription:
             if file_path.is_dir():
                 continue
             entity = EntityDescription.from_file(file_path, ignore_type_error=True)
+            entity.metadata.update(metadata)
             self.add_existing_entity(entity)
 
         if update:
@@ -441,11 +451,41 @@ class SchemaDescription:
 
     def print(self):
         import rich
+        from rich import print
+        from rich.panel import Panel
+        from rich.console import Group
+        from rich.text import Text
+        from rich.table import Table
 
         for entity in self:
-            rich.print(f"Entity: {entity.name}")
+            entity_content = []
+
+            if entity.description:
+                entity_content.append(Text(entity.description, style="bold cyan"))
+
+            if entity.metadata:
+                table = Table(show_header=False, box=None, pad_edge=False)
+                for key, value in entity.metadata.items():
+                    table.add_row(Text(f"{key}:", style="bold yellow"), Text(str(value), style="white"))
+                entity_content.append(Panel(table, title="Metadata", title_align="left", border_style="yellow"))
+
+
+            if entity.tags:
+                entity_content.append(Text(f"Tags: {', '.join(entity.tags)}", style="bold green"))
+
+            # Add fields inside the panel with correct styling
             for field in entity:
-                rich.print(f"  {field.print_str()}")
+                field_text = Text(f"  - {field.name} ", style="white")
+                field_text.append(f"({field.description})", style="dim")
+                entity_content.append(field_text)
+
+            entity_panel = Panel(
+                Group(*entity_content),
+                title=f"[bold magenta]{entity.name}[/bold magenta]",
+                expand=False
+            )
+
+            print(entity_panel)
 
     def print_warnings(self):
         """Print warnings for bad designs of fields"""

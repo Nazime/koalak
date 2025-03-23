@@ -120,8 +120,11 @@ class SubcommandPrinter:
         for e in self.cmd.subcommands.keys():
             names.append(e)
 
-        max_name = max(names, key=len)
-        return len(max_name)
+        if names:
+            max_name = max(names, key=len)
+            return len(max_name)
+        else:
+            return 20
 
     def print_help(self, file=None):
         """Print the help menu with better coloring"""

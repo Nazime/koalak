@@ -28,7 +28,10 @@ class EntityDescription:
         category: str = None,
         tags: list[str] = None,
         order: int = None,
+        metadata: dict = None,
     ):
+        if metadata is None:
+            metadata = {}
         if extra is None:
             extra = {}
 
@@ -71,6 +74,7 @@ class EntityDescription:
         self.order = order
         self.category = category
         self.tags = tags
+        self.metadata = metadata
         self._fields = {}
         self._pretty_name = pretty_name
         self._plural_name = plural_name
