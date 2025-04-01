@@ -260,7 +260,7 @@ class PluginManager(Generic[T]):
             tags=tags,
             authors=authors,
         )
-        iterable = Container(iterable, name=name)
+        iterable = Container(iterable).filter(name=name)
         yield from iterable
 
     def get_home_data_path(self, *paths):
