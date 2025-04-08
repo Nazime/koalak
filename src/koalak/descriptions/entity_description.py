@@ -285,10 +285,39 @@ class EntityDescription:
                 entity.add_field(header)
         return entity
 
-    def print(self):
-        import rich
+    def rich_print(self):
+        from rich import print
+        from rich.panel import Panel
+        from rich.console import Group
+        from rich.text import Text
+        from rich.table import Table
 
-        rich.print(f"Entity: {self.name} {self.title}")
+        
+        entity_content = []
 
+        if self.description:
+            entity_content.append(Text(self.description, style="bold cyan"))
+
+        if self.metadata:
+            table = Table(show_header=False, box=None, pad_edge=False)
+            for key, value in self.metadata.items():
+                table.add_row(Text(f"{key}:", style="bold yellow"), Text(str(value), style="white"))
+            entity_content.append(Panel(table, title="Metadata", title_align="left", border_style="yellow"))
+
+
+        if self.tags:
+            entity_content.append(Text(f"Tags: {', '.join(self.tags)}", style="bold green"))
+
+        # Add fields inside the panel with correct styling
         for field in self:
-            rich.print(f"  {field.print_str()}")
+            field_text = Text(f"  - {field.name} ", style="white")
+            field_text.append(f"({field.description})", style="dim")
+            entity_content.append(field_text)
+
+        entity_panel = Panel(
+            Group(*entity_content),
+            title=f"[bold magenta]{self.name}[/bold magenta]",
+            expand=False
+        )
+
+        print(entity_panel)
