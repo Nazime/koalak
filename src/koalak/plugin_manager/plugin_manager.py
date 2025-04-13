@@ -1,10 +1,12 @@
 import glob
 import inspect
 import os
+from importlib.metadata import entry_points
 from pathlib import Path
 from typing import Dict, Generic, Iterable, List, Type, TypeVar, Union
 
 from koalak.config import Config
+from koalak.containers import Container, search
 
 from ..descriptions.field_description import FieldDescription
 from .base_plugin import Plugin
@@ -60,9 +62,11 @@ class PluginManager(Generic[T]):
         self,
         name: str = None,
         *,
+        description: str = None,
         base_plugin: Type[T],
         auto_register: bool = None,
         auto_check: bool = None,
+        entry_point: str = None,
         # Paths
         builtin_data_path: Union[str, Path] = None,
         builtin_plugins_path: Union[str, Path] = None,
@@ -108,6 +112,8 @@ class PluginManager(Generic[T]):
                 home_path / "exceptions"
 
         self.name: str = name
+        self.description: str = description
+        self.entry_point = entry_point
         self.builtin_data_path = builtin_data_path
         self.builtin_plugins_path = builtin_plugins_path
         self.home_path: Path = home_path
@@ -217,7 +223,29 @@ class PluginManager(Generic[T]):
         self._load_plugins()
         self._init_config()
 
-    def iter(self, *, name=None):
+        # TODO: document & test entry points
+        # Load plugins from other libraries entry points
+        if self.entry_point:
+            for entry_point in entry_points(group=self.entry_point, name=self.name):
+                try:
+                    entry_point.load()
+                except ModuleNotFoundError as e:
+                    package_distribution = entry_point.dist.name
+                    raise ModuleNotFoundError(
+                        f"Failed to load entry point '{entry_point.name}' from distribution '{package_distribution}'. "
+                        f"Ensure the package is installed and accessible. Missing module: '{entry_point.value}'"
+                    ) from e
+
+    def iter(
+        self,
+        *,
+        name: str | list[str] = None,
+        category: str | list[str] = None,
+        sub_category: str | list[str] = None,
+        tags: str | list[str] = None,
+        authors: str | list[str] = None,
+    ):
+
         if isinstance(name, str):
             name = [name]
         if name is not None:
@@ -225,10 +253,17 @@ class PluginManager(Generic[T]):
                 if e not in self:
                     raise ValueError(f"Plugin '{e}' not registred")
 
-        for e in self:
-            if name is not None and e.name not in name:
-                continue
-            yield e
+        # Filter with metadata
+        iterable = search(
+            self,
+            key=lambda x, e: getattr(x.metadata, e),
+            category=category,
+            sub_category=sub_category,
+            tags=tags,
+            authors=authors,
+        )
+        iterable = Container(iterable).filter(name=name)
+        yield from iterable
 
     def get_home_data_path(self, *paths):
         return self.home_data_path.joinpath(*paths)

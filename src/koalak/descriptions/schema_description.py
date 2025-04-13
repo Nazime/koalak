@@ -25,10 +25,16 @@ class SchemaDescription:
     """Describe how different EntityDescription are related"""
 
     def __init__(
-        self, allowed_tags: list[str] = None, allowed_categories: list[str] = None
+        self,
+        allowed_tags: list[str] = None,
+        allowed_categories: list[str] = None,
+        metadata: dict = None,
     ):
+        if metadata is None:
+            metadata = {}
         self.allowed_tags = allowed_tags
         self.allowed_categories = allowed_categories
+        self.metadata = metadata
 
         self._initialized = False
         self._entities: Dict[str, EntityDescription] = {}
@@ -263,24 +269,42 @@ class SchemaDescription:
 
     @classmethod
     def from_folder(
-        cls, filepath: Union[str, Path], allowed_tags=None, allowed_categories=None
+        cls,
+        filepath: Union[str, Path],
+        allowed_tags=None,
+        allowed_categories=None,
+        update: bool = None,
+        metadata: dict = None,
     ) -> "SchemaDescription":
+
+        schema = SchemaDescription(
+            allowed_tags=allowed_tags, allowed_categories=allowed_categories
+        )
+
+        schema.add_entities_from_folder(filepath, update=update, metadata=metadata)
+        return schema
+
+    def add_entities_from_folder(self, filepath, update=None, metadata=None):
+        if update is None:
+            update = True
+        if metadata is None:
+            metadata = {}
+
         folder_path = Path(filepath)
 
         if not folder_path.is_dir():
             raise ValueError(f"Provided path '{folder_path}' is not a directory.")
 
-        schema = SchemaDescription(
-            allowed_tags=allowed_tags, allowed_categories=allowed_categories
-        )
         for file_path in folder_path.rglob("*"):
             if file_path.is_dir():
                 continue
             entity = EntityDescription.from_file(file_path, ignore_type_error=True)
-            schema.add_existing_entity(entity)
-        schema.update_referenced_entities_from_str()
-        schema.update()
-        return schema
+            entity.metadata.update(metadata)
+            self.add_existing_entity(entity)
+
+        if update:
+            self.update_referenced_entities_from_str()
+            self.update()
 
     @classmethod
     def from_dict(
@@ -358,7 +382,6 @@ class SchemaDescription:
         map_str_name_to_entity = {}
         for entity in self:
             map_str_name_to_entity[entity.name] = entity
-
         for entity in self:
             for field in entity:
                 if isinstance(field.type, str):
@@ -427,13 +450,9 @@ class SchemaDescription:
         with open(filepath, "w") as yaml_file:
             yaml.dump(dict_description, yaml_file, sort_keys=False)
 
-    def print(self):
-        import rich
-
+    def rich_print(self):
         for entity in self:
-            rich.print(f"Entity: {entity.name}")
-            for field in entity:
-                rich.print(f"  {field.print_str()}")
+            entity.rich_print()
 
     def print_warnings(self):
         """Print warnings for bad designs of fields"""
@@ -468,3 +487,8 @@ class SchemaDescription:
 
     def sort(self):
         self._entities = {e.name: e for e in sorted(self, key=lambda x: x.order)}
+
+    def __contains__(self, item):
+        if isinstance(item, str):
+            return item in self._entities
+        raise NotImplemented("Can check only str")

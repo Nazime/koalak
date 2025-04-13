@@ -4,7 +4,6 @@ from typing import Any, Dict
 
 if typing.TYPE_CHECKING:
     from .subcommand_parser import SubcommandParser
-
 from koalak.descriptions import EntityDescription, FieldDescription
 
 # import rich
@@ -80,11 +79,16 @@ class SubcommandPrinter:
         args = []
         # Get type column
         if add_type:
-            type_str = types_to_text.get(argument.type, "TEXT")
-            if argument.many:
-                type_str = f"List[{type_str}]"
-            styled_type = Text(type_str, style=STYLE_OPTIONS_TYPE)
-            args.append(styled_type)
+            if argument.choices:
+                str_choices = "[" + ", ".join(argument.choices) + "]"
+                str_choices = Text(str_choices, style=STYLE_OPTIONS_TYPE)
+                args.append(str_choices)
+            else:
+                type_str = types_to_text.get(argument.type, "TEXT")
+                if argument.many:
+                    type_str = f"List[{type_str}]"
+                styled_type = Text(type_str, style=STYLE_OPTIONS_TYPE)
+                args.append(styled_type)
 
         # Get help column
         if argument.description is not None:
@@ -115,8 +119,11 @@ class SubcommandPrinter:
         for e in self.cmd.subcommands.keys():
             names.append(e)
 
-        max_name = max(names, key=len)
-        return len(max_name)
+        if names:
+            max_name = max(names, key=len)
+            return len(max_name)
+        else:
+            return 20
 
     def print_help(self, file=None):
         """Print the help menu with better coloring"""

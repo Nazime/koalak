@@ -25,8 +25,12 @@ def first(iterable: Iterable[T], *args, **kwargs) -> T:
     return container.first(*args, **kwargs)
 
 
-def search(iterable: Iterable[T], *args, **kwargs):
-    container = _get_appropriate_container(iterable)
+def search(iterable: Iterable[T], *args, key=None, **kwargs):
+    if key:
+        container = Container(iterable)
+        container.get = key
+    else:
+        container = _get_appropriate_container(iterable)
     return container.search(*args, **kwargs)
 
 
