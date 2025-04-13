@@ -1,6 +1,6 @@
 [project]
 name= "koalak"
-version = "0.4.0"  # change it in const also
+version = "0.4.1"  # change it in const also
 description = "Library designed to simplify the development of applications with a plugin-based architecture."
 readme="README.md"
 requires-python = ">=3.7"
