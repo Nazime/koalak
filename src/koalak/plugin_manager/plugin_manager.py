@@ -62,6 +62,7 @@ class PluginManager(Generic[T]):
         self,
         name: str = None,
         *,
+        description: str = None,
         base_plugin: Type[T],
         auto_register: bool = None,
         auto_check: bool = None,
@@ -111,6 +112,7 @@ class PluginManager(Generic[T]):
                 home_path / "exceptions"
 
         self.name: str = name
+        self.description: str = description
         self.entry_point = entry_point
         self.builtin_data_path = builtin_data_path
         self.builtin_plugins_path = builtin_plugins_path
