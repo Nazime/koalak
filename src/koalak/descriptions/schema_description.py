@@ -25,8 +25,10 @@ class SchemaDescription:
     """Describe how different EntityDescription are related"""
 
     def __init__(
-        self, allowed_tags: list[str] = None, allowed_categories: list[str] = None,
-            metadata: dict = None,
+        self,
+        allowed_tags: list[str] = None,
+        allowed_categories: list[str] = None,
+        metadata: dict = None,
     ):
         if metadata is None:
             metadata = {}
@@ -273,7 +275,6 @@ class SchemaDescription:
         allowed_categories=None,
         update: bool = None,
         metadata: dict = None,
-
     ) -> "SchemaDescription":
 
         schema = SchemaDescription(

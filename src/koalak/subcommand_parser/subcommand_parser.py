@@ -27,7 +27,9 @@ def generic_print(obj):
         rich.print(obj)
 
 
-def argparse_argument_to_field_description(argparse_action, choices=None) -> FieldDescription:
+def argparse_argument_to_field_description(
+    argparse_action, choices=None
+) -> FieldDescription:
     dest = argparse_action.dest
     help = argparse_action.help
     extra_kwargs = {}
@@ -194,7 +196,9 @@ class SubcommandParser:
     ):
         """Same as ArgumentParser.add_argument with hide and group params"""
         argparse_arg = self._argparse_parser.add_argument(*args, **kwargs)
-        field_description = argparse_argument_to_field_description(argparse_arg, choices=kwargs.get("choices"))
+        field_description = argparse_argument_to_field_description(
+            argparse_arg, choices=kwargs.get("choices")
+        )
         field_description.hidden = hide
         self._add_argument_from_field_description(field_description, group=group)
 
