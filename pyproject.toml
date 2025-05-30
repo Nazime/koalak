@@ -1,6 +1,6 @@
 [project]
 name= "koalak"
-version = "0.4.1"  # change it in const also
+version = "0.4.2"  # change it in const also
 description = "Library designed to simplify the development of applications with a plugin-based architecture."
 readme="README.md"
 requires-python = ">=3.7"
@@ -41,3 +41,18 @@ requires = [
     "wheel >= 0.30.0",
 ]
 build-backend = 'setuptools.build_meta'
+
+
+[tool.importlinter]
+root_package = "koalak"
+
+[[tool.importlinter.contracts]]
+name = "Respect layer structure"
+type = "layers"
+layers = [
+    "koalak.subcommand_parser",
+    "koalak.plugin_manager",
+    "koalak.descriptions",
+    "koalak.utils",
+    "koalak.consts",
+]
