@@ -440,7 +440,7 @@ class SchemaDescription:
         return self._map_cls_to_entity[cls]
 
     def to_json(self) -> Dict:
-        return {entity.name: entity.to_json() for entity in self}
+        return {"entities": [e.to_json() for e in self]}
 
     def to_yaml(self, filepath: str) -> None:
         import yaml

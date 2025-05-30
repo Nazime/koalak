@@ -27,6 +27,27 @@ class FieldDescription:
 
     NOTHING = attrs.NOTHING
 
+    JSON_FIELDS = [
+        "name",
+        "pretty_name",
+        "plural_name",
+        "display_name",
+        "dest",
+        "default",
+        "choices",
+        "annotation",
+        "description",
+        "examples",
+        "element_examples",
+        "indexed",
+        "unique",
+        "nullable",
+        "hidden_in_list",
+        "hidden_in_detail",
+        "in_filter_query",
+        "is_linked_by_related_name",
+    ]
+
     def __init__(
         self,
         name: str = None,
@@ -183,11 +204,6 @@ class FieldDescription:
         # Double check only
         if required is not None:
             if required != self.required:
-                import rich
-
-                rich.inspect(self)
-                # FIXME: remove it
-                debug(self, self.required, required)
                 raise ValueError("This GenericField should not be required")
 
     @property
@@ -252,6 +268,7 @@ class FieldDescription:
     @property
     def referenced_entity(self) -> "EntityDescription":
         if not self.has_relationship():
+            return None
             raise ValueError("This field is does not have a relationship")
         return self.atomic_type
 
@@ -342,20 +359,19 @@ class FieldDescription:
         return copy.deepcopy(self)
 
     def to_json(self):
-        field_dict = vars(self)
-        cleaned_field = {}
-        for k, v in field_dict.items():
-            # FIXME: checkking v is False is the assemption that all default boolean values are False
-            #  which is true currently but can evolve
-            if v is None or v is attrs.NOTHING or v is False:
-                continue
+        field_dict = {}
+        for field in self.JSON_FIELDS:
+            field_dict[field] = getattr(self, field)
 
-            if v == []:
-                continue
-
-            cleaned_field[k] = v
-        cleaned_field.pop("name")
-        return cleaned_field
+        field_dict["annotation"] = str(field_dict["annotation"])
+        field_dict["entity"] = self.entity.name
+        if self.default is attrs.NOTHING:
+            field_dict["default"] = "NOTHING"
+        if self.has_relationship():
+            field_dict["referenced_entity"] = self.referenced_entity.name
+        else:
+            field_dict["referenced_entity"] = None
+        return field_dict
 
     def __repr__(self):
         if self.entity:

@@ -218,7 +218,10 @@ class EntityDescription:
         return attrs.define(AttrClass)
 
     def to_json(self):
-        return {"fields": {field.name: field.to_json() for field in self}}
+        return {
+            "name": self.name,
+            "fields": {field.name: field.to_json() for field in self},
+        }
 
     @classmethod
     def from_dict(
